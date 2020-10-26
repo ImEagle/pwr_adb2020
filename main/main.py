@@ -12,7 +12,7 @@ from factories.employee import EmployeeFactory
 from factories.items import ItemFactory
 from factories.locations import LocationFactory
 from factories.order import OrderFactory, OrderItemFactory
-from factories.promotions import PromotionFactory
+from factories.promotions import PromotionFactory, PromotionItemFactory
 from factories.ratings import RatingFactory
 from factories.vendors import VendorCategoryFactory, VendorFactory
 from models.customers import Customer
@@ -256,8 +256,8 @@ def create_delivery(orders: List[Order], employees: List[Employee]):
         delivery = DeliveryFactory(
             order_id=order["order_id"],
             employee_id=random.choice(employees)["employee_id"],
-            pick_up_at=order.prepared_at + pick_up_at_delta,
-            delivered_at=order.prepared_at + delivered_at_delta,
+            pick_up_at=order['prepared_at'] + pick_up_at_delta,
+            delivered_at=order['prepared_at'] + delivered_at_delta,
         )
 
         deliveries.append(asdict(delivery))
@@ -314,6 +314,38 @@ def create_promotions(vendors: List[Vendor]):
     return promotions
 
 
+def create_promotions_items(promotions, items):
+    promotions_items = []
+    items_ids = [i["item_id"] for i in items]
+
+    promotions_min, promotions_max = config.PROMOTIONS_ITEMS_AMOUNT
+
+    for promotion in promotions:
+        used_items = []
+
+        for _ in range(1, random.randrange(promotions_min, promotions_max)):
+
+            selected_item_id = random.choice(items_ids)
+            while selected_item_id in used_items:
+                selected_item_id = random.choice(items_ids)
+
+            used_items.append(selected_item_id)
+
+            promotion_item = PromotionItemFactory(
+                promotion_id=promotion['promotion_id'],
+                items_id=selected_item_id,
+            )
+
+            promotions_items.append(asdict(promotion_item))
+
+    conn = get_connection()
+    cur = conn.cursor()
+    _insert(cur, "promotions_items", promotions_items[0].keys(), promotions_items)
+    conn.commit()
+
+    return promotions
+
+
 def gen_all():
     employees = create_employees()
     locations = create_locations()
@@ -329,6 +361,8 @@ def gen_all():
     deliveries = create_delivery(orders, employees)
     promotions = create_promotions(vendors)
     ratings = create_ratings(orders)
+
+    promotion_items = create_promotions_items(promotions, items)
 
 if __name__ == "__main__":
 

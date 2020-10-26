@@ -5,7 +5,7 @@ from datetime import date
 @dataclass
 class PromotionItem:
     promotion_id: int
-    item_id: int
+    items_id: int
     type: str
     min_items_count: int
     max_items_count: int

@@ -12,7 +12,7 @@ from models.promotions import Promotion, PromotionItem
 
 class PromotionItemFactory(factory.Factory):
     promotion_id = factory.LazyAttribute(lambda o: str(uuid4()))
-    item_id = factory.SubFactory(ItemFactory)
+    items_id = factory.SubFactory(ItemFactory)
     type = factory.fuzzy.FuzzyChoice(PROMOTION_TYPE)
     min_items_count = factory.fuzzy.FuzzyInteger(1, 5)
     max_items_count = factory.fuzzy.FuzzyInteger(10, 20)
