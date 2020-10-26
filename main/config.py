@@ -65,7 +65,7 @@ ORDERS_ITEMS_AMOUNT = (1, 20)
 
 # === ORDERS ===
 # Orders created per Customer
-ORDERS_AMOUNT = (1000, 100000)
+ORDERS_AMOUNT = (1000, 10000)
 
 ORDER_CREATED_AT_FROM = datetime(2010, 1, 1, tzinfo=pytz.UTC)
 ORDER_CREATED_AT_TO = datetime.now(pytz.UTC)

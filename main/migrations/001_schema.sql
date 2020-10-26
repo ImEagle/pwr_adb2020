@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS orders (
   order_id VARCHAR(36) NOT NULL,
   customer_id VARCHAR(36) NOT NULL,
   employee_id VARCHAR(36) NOT NULL,
-  vendor_id INT NOT NULL,
+  vendor_id VARCHAR(36) NOT NULL,
   created_at TIMESTAMP NOT NULL,
   status VARCHAR(45) NOT NULL,
   items_count INT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS orders (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS ratings (
   rating_id VARCHAR(36) NOT NULL,
-  order_id INT NOT NULL,
+  order_id VARCHAR(36) NOT NULL,
   opinion VARCHAR(45) NOT NULL,
   rating INT NOT NULL,
   created_at TIMESTAMP NOT NULL,
