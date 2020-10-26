@@ -25,7 +25,7 @@ class VendorFactory(factory.Factory):
     name = factory.fuzzy.FuzzyText()
     delivery_charge = factory.fuzzy.FuzzyFloat(1., 5.)
     is_open = True
-    created_at = factory.fuzzy.FuzzyDateTime(datetime.now())
+    created_at = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))
 
     class Meta:
         model = Vendor

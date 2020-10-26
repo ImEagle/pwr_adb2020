@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import factory.fuzzy
+import pytz
 
 from factories._choices import PROMOTION_TYPE
 from factories.items import ItemFactory
@@ -25,8 +26,8 @@ class PromotionFactory(factory.Factory):
     promotion_id = factory.fuzzy.FuzzyInteger(1, 100000000)
     vendor_id = factory.SubFactory(VendorFactory)
     name = factory.fuzzy.FuzzyText()
-    start_date = factory.fuzzy.FuzzyDateTime(datetime.now())
-    end_date = factory.fuzzy.FuzzyDateTime(datetime.now())
+    start_date = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))
+    end_date = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))
     type = factory.fuzzy.FuzzyChoice(PROMOTION_TYPE)
     discount_amount = factory.fuzzy.FuzzyFloat(0., 5.)
     discount_percent = factory.fuzzy.FuzzyFloat(0., 50.)

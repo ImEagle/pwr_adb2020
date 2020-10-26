@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import factory.fuzzy
+import pytz
 
 from factories._choices import ORDER_STATUS
 from factories.customers import CustomerFactory
@@ -16,12 +17,12 @@ class OrderFactory(factory.Factory):
     customer_id = factory.SubFactory(CustomerFactory)
     employee_id = factory.SubFactory(EmployeeFactory)
     vendor_id = factory.SubFactory(VendorFactory)
-    created_at = factory.fuzzy.FuzzyDateTime(datetime.now())
+    created_at = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))
     status = factory.fuzzy.FuzzyChoice(ORDER_STATUS)
     items_count = factory.fuzzy.FuzzyInteger(1)
     total_amount = factory.fuzzy.FuzzyFloat(1.)
     promotion_id = factory.SubFactory(PromotionFactory)
-    prepared_at = factory.fuzzy.FuzzyDateTime(datetime.now())
+    prepared_at = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))
 
     class Meta:
         model = Order
