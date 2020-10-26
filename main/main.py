@@ -6,10 +6,12 @@ import psycopg2
 
 import config
 from factories.customers import CustomerFactory, CustomerLocationFactory
+from factories.delivery import DeliveryFactory
 from factories.employee import EmployeeFactory
 from factories.items import ItemFactory
 from factories.locations import LocationFactory
 from factories.order import OrderFactory, OrderItemFactory
+from factories.ratings import RatingFactory
 from factories.vendors import VendorCategoryFactory, VendorFactory
 from models.customers import Customer
 from models.employee import Employee
@@ -219,12 +221,47 @@ def create_orders_items(orders: List[Order], items: List[Item]):
     return orders_items
 
 
+def create_delivery(orders: List[Order], employees: List[Employee]):
+    deliveries = []
+
+    for order in orders:
+        delivery = DeliveryFactory(
+            order_id=order["order_id"],
+            employee_id=random.choice(employees)["employee_id"]
+        )
+
+        deliveries.append(asdict(delivery))
+
+    conn = get_connection()
+    cur = conn.cursor()
+    _insert(cur, "delivery", deliveries[0].keys(), deliveries)
+    conn.commit()
+
+    return deliveries
+
+
+def create_ratings(orders: List[Order]):
+    ratings = []
+
+    for order in orders:
+        rating = RatingFactory(
+            order_id=order["order_id"]
+        )
+
+        ratings.append(asdict(rating))
+
+    conn = get_connection()
+    cur = conn.cursor()
+    _insert(cur, "ratings", ratings[0].keys(), ratings)
+    conn.commit()
+
+    return ratings
+
+
 if __name__ == "__main__":
-    # delivery
     employees = create_employees()
     # promotions
     # promotions_items
-    # ratings
     locations = create_locations()
     customers = create_customers_with_location(locations)
 
@@ -234,3 +271,7 @@ if __name__ == "__main__":
 
     orders = create_orders(customers, employees, vendors)
     orders_items = create_orders_items(orders, items)
+
+    deliveries = create_delivery(orders, employees)
+
+    ratings = create_ratings(orders)

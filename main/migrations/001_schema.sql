@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE TABLE IF NOT EXISTS ratings (
   rating_id INT NOT NULL,
   order_id INT NOT NULL,
-  opition VARCHAR(45) NOT NULL,
+  opinion VARCHAR(45) NOT NULL,
   rating INT NOT NULL,
   created_at TIMESTAMP NOT NULL,
   PRIMARY KEY (rating_id))
