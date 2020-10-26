@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 
 import factory.fuzzy
 import pytz
@@ -8,7 +9,7 @@ from models.ratings import Rating
 
 
 class RatingFactory(factory.Factory):
-    rating_id = factory.fuzzy.FuzzyInteger(1, 100000000)
+    rating_id = factory.LazyAttribute(lambda o: str(uuid4()))
     order_id = factory.SubFactory(OrderFactory)
     opinion = factory.fuzzy.FuzzyText()
     rating = factory.fuzzy.FuzzyInteger(0, 5)

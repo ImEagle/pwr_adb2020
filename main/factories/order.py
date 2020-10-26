@@ -1,8 +1,10 @@
 from datetime import datetime
+from uuid import uuid4
 
 import factory.fuzzy
 import pytz
 
+import config
 from factories._choices import ORDER_STATUS
 from factories.customers import CustomerFactory
 from factories.employee import EmployeeFactory
@@ -13,11 +15,14 @@ from models.order import OrderItem, Order
 
 
 class OrderFactory(factory.Factory):
-    order_id = factory.fuzzy.FuzzyInteger(1, 100000000)
+    order_id = factory.LazyAttribute(lambda o: str(uuid4()))
     customer_id = factory.SubFactory(CustomerFactory)
     employee_id = factory.SubFactory(EmployeeFactory)
     vendor_id = factory.SubFactory(VendorFactory)
-    created_at = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))
+    created_at = factory.fuzzy.FuzzyDateTime(
+        config.ORDER_CREATED_AT_FROM,
+        config.ORDER_CREATED_AT_TO
+    )
     status = factory.fuzzy.FuzzyChoice(ORDER_STATUS)
     items_count = factory.fuzzy.FuzzyInteger(1)
     total_amount = factory.fuzzy.FuzzyFloat(1.)

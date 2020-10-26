@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 
 import factory.fuzzy
 import pytz
@@ -10,7 +11,7 @@ from models.promotions import Promotion, PromotionItem
 
 
 class PromotionItemFactory(factory.Factory):
-    promotion_id = factory.fuzzy.FuzzyInteger(1, 100000000)
+    promotion_id = factory.LazyAttribute(lambda o: str(uuid4()))
     item_id = factory.SubFactory(ItemFactory)
     type = factory.fuzzy.FuzzyChoice(PROMOTION_TYPE)
     min_items_count = factory.fuzzy.FuzzyInteger(1, 5)
@@ -23,7 +24,7 @@ class PromotionItemFactory(factory.Factory):
 
 
 class PromotionFactory(factory.Factory):
-    promotion_id = factory.fuzzy.FuzzyInteger(1, 100000000)
+    promotion_id = factory.LazyAttribute(lambda o: str(uuid4()))
     vendor_id = factory.SubFactory(VendorFactory)
     name = factory.fuzzy.FuzzyText()
     start_date = factory.fuzzy.FuzzyDateTime(datetime.now(pytz.UTC))

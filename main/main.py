@@ -1,5 +1,6 @@
 import random
 from dataclasses import asdict
+from datetime import timedelta
 from typing import List
 
 import psycopg2
@@ -11,6 +12,7 @@ from factories.employee import EmployeeFactory
 from factories.items import ItemFactory
 from factories.locations import LocationFactory
 from factories.order import OrderFactory, OrderItemFactory
+from factories.promotions import PromotionFactory
 from factories.ratings import RatingFactory
 from factories.vendors import VendorCategoryFactory, VendorFactory
 from models.customers import Customer
@@ -152,8 +154,14 @@ def create_items(vendors: List[Vendor]):
 
     for vendor in vendors:
         for _ in range(1, random.randrange(min_items, max_items)):
+            created_at_delta = timedelta(minutes=random.randrange(
+                config.ITEM_CREATED_AT_MINUTES_FROM,
+                config.ITEM_CREATED_AT_MINUTES_TO
+            ))
+
             item = ItemFactory(
-                vendor_id=vendor["vendor_id"]
+                vendor_id=vendor["vendor_id"],
+                created_at=vendor["created_at"] + created_at_delta
             )
             items.append(asdict(item))
 
@@ -180,15 +188,22 @@ def get_connection():
 def create_orders(customers: List[Customer], employees: List[Employee], vendors: List[Vendor]):
     orders = []
 
-    for _ in range(1, config.ORDERS_AMOUNT):
-        order = OrderFactory(
-            customer_id=random.choice(customers)["customer_id"],
-            employee_id=random.choice(employees)["employee_id"],
-            vendor_id=random.choice(vendors)["vendor_id"],
-            promotion_id=None
-        )
+    orders_min, orders_max = config.ORDERS_AMOUNT
 
-        orders.append(asdict(order))
+    for customer in customers:
+        for _ in range(1, random.randrange(orders_min, orders_max)):
+            order = OrderFactory(
+                customer_id=customer["customer_id"],
+                employee_id=random.choice(employees)["employee_id"],
+                vendor_id=random.choice(vendors)["vendor_id"],
+                promotion_id=None
+            )
+            prepared_at_delta = timedelta(minutes=random.randrange(
+                config.ORDER_PREPARED_AT_MINUTES_FROM, config.ORDER_PREPARED_AT_MINUTES_TO
+            ))
+            order.prepared_at = order.created_at + prepared_at_delta
+
+            orders.append(asdict(order))
 
     conn = get_connection()
     cur = conn.cursor()
@@ -225,9 +240,24 @@ def create_delivery(orders: List[Order], employees: List[Employee]):
     deliveries = []
 
     for order in orders:
+        pick_up_at_delta = timedelta(
+            minutes=random.randrange(
+                config.DELIVERY_PICK_UP_AT_MINUTES_FROM,
+                config.DELIVERY_TIP_TO
+            )
+        )
+        delivered_at_delta = timedelta(
+            minutes=random.randrange(
+                config.DELIVERY_PICK_UP_AT_MINUTES_FROM,
+                config.DELIVERY_PICK_UP_AT_MINUTES_TO
+            )
+        )
+
         delivery = DeliveryFactory(
             order_id=order["order_id"],
-            employee_id=random.choice(employees)["employee_id"]
+            employee_id=random.choice(employees)["employee_id"],
+            pick_up_at=order.prepared_at + pick_up_at_delta,
+            delivered_at=order.prepared_at + delivered_at_delta,
         )
 
         deliveries.append(asdict(delivery))
@@ -258,10 +288,34 @@ def create_ratings(orders: List[Order]):
     return ratings
 
 
-if __name__ == "__main__":
+def create_promotions(vendors: List[Vendor]):
+    promotions = []
+
+    promotions_min, promotions_max = config.PROMOTIONS_AMOUNT
+
+    for vendor in vendors:
+        for _ in range(1, random.randrange(promotions_min, promotions_max)):
+            start_date_delta = timedelta(days=config.PROMOTION_START_DATE_DAYS_FROM)
+            end_date_delta = timedelta(days=config.PROMOTION_START_DATE_DAYS_TO)
+
+            promotion = PromotionFactory(
+                vendor_id=vendor["vendor_id"],
+                start_date=vendor["created_at"] + start_date_delta,
+                end_date=vendor["created_at"] + end_date_delta
+            )
+
+            promotions.append(asdict(promotion))
+
+    conn = get_connection()
+    cur = conn.cursor()
+    _insert(cur, "promotions", promotions[0].keys(), promotions)
+    conn.commit()
+
+    return promotions
+
+
+def gen_all():
     employees = create_employees()
-    # promotions
-    # promotions_items
     locations = create_locations()
     customers = create_customers_with_location(locations)
 
@@ -273,5 +327,9 @@ if __name__ == "__main__":
     orders_items = create_orders_items(orders, items)
 
     deliveries = create_delivery(orders, employees)
-
+    promotions = create_promotions(vendors)
     ratings = create_ratings(orders)
+
+if __name__ == "__main__":
+
+    gen_all()

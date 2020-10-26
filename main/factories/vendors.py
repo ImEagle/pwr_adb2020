@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 
 import factory.fuzzy
 import pytz
@@ -8,7 +9,7 @@ from models.vendors import Vendor, VendorCategory
 
 
 class VendorCategoryFactory(factory.Factory):
-    vendor_category_id = factory.fuzzy.FuzzyInteger(1, 100000000)
+    vendor_category_id = factory.LazyAttribute(lambda o: str(uuid4()))
     name = factory.fuzzy.FuzzyText()
     is_seasonal = False
     adults_only = False
@@ -19,7 +20,7 @@ class VendorCategoryFactory(factory.Factory):
 
 
 class VendorFactory(factory.Factory):
-    vendor_id = factory.fuzzy.FuzzyInteger(1, 100000000)
+    vendor_id = factory.LazyAttribute(lambda o: str(uuid4()))
     vendor_category_id = factory.SubFactory(VendorCategoryFactory)
     location_id = factory.SubFactory(LocationFactory)
     name = factory.fuzzy.FuzzyText()
